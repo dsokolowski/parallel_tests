@@ -120,4 +120,20 @@ describe 'CLI' do
     result.should_not include('111')
     result.should include('222')    
   end
+  
+  it "should log tests output in file using environment variable LOGGER" do
+    write "x1_spec.rb", "puts 111"    
+    logger_path = "/tmp/test.log"    
+    result = `cd #{folder} &&  LOGGER=#{logger_path} #{executable} -t spec  -n 1 spec/x1_spec.rb  2>&1 && echo 'i ran!'`    
+    file_content = File.read(logger_path)    
+    file_content.should include("111")
+  end
+  
+  it "should log tests output in file using argument -l" do
+    write "x1_spec.rb", "puts 111"    
+    logger_path = "/tmp/test.log"    
+    result = `cd #{folder} && #{executable} -t spec  -n 1 -l #{logger_path} spec/x1_spec.rb  2>&1 && echo 'i ran!'`    
+    file_content = File.read(logger_path)    
+    file_content.should include("111")
+  end
 end

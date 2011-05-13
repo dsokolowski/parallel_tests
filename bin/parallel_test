@@ -18,6 +18,7 @@ Options are:
 BANNER
   opts.on("-n [PROCESSES]", Integer, "How many processes to use, default: available CPUs"){|n| options[:count] = n }
   opts.on("-p", '--path [PATH]', "run tests inside this path only"){|path| options[:path_prefix] = path }
+  opts.on("-l", "--logger", "Logger path.") { |log| options[:logger] = log }
   opts.on("--no-sort", "do not sort files before running them"){ |no_sort| options[:no_sort] = no_sort }
   opts.on("-m [FLOAT]", "--multiply-processes [FLOAT]", Float, "use given number as a multiplier of processes to run"){ |multiply| options[:multiply] = multiply }
   opts.on("-r", '--root [PATH]', "execute test commands from this path"){|path| options[:root] = path }
@@ -32,6 +33,7 @@ end.parse!
 
 # Overriding options by environment variable
 options[:path_prefix] ||= ENV['PATH_PREFIX']
+options[:logger] ||= ENV['LOGGER'] if ENV['LOGGER']
 
 # get files to run from arguments
 options[:files] = ARGV if ARGV.size > 0
@@ -78,16 +80,26 @@ else
   test_results = Parallel.map(groups, :in_processes => num_processes) do |group|
     klass.run_tests(group, groups.index(group), options)
   end
-
+ 
   #parse and print results
-  results = klass.find_results(test_results.map{|result| result[:stdout] }*"")
+  output = test_results.map{|result| result[:stdout] }*""
+  results = klass.find_results(output)
   puts ""
-  puts "Results:"
-  results.each{|r| puts r }
+
+  message = "\nResults:\n"
+  results.each{|r| message << "#{r} \n"}
 
   #report total time taken
-  puts ""
-  puts "Took #{Time.now - start} seconds"
+  message << "\nTook #{Time.now - start} seconds"
+
+  puts message
+  if options[:logger]
+    log_file = File.open(options[:logger], "w")
+    log_file.puts "#"*60+" #{Time.now}"
+    log_file.puts output
+    log_file.puts message
+    puts "\nTests output logged in file: #{options[:logger]}\n\n"
+  end
 
   #exit with correct status code so rake parallel:test && echo 123 works
   failed = test_results.any?{|result| result[:exit_status] != 0 }
