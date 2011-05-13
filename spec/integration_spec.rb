@@ -13,8 +13,9 @@ describe 'CLI' do
     "/tmp/parallel_tests_tests"
   end
 
-  def write(file, content)
-    path = "#{folder}/spec/#{file}"
+  def write(file, content, subfolder=nil)
+    subfolder = "#{subfolder}/" if subfolder
+    path = "#{folder}/spec/#{subfolder}#{file}"
     `mkdir -p #{File.dirname(path)}` unless File.exist?(File.dirname(path))
     File.open(path, 'w'){|f| f.write content }
     path
@@ -110,5 +111,13 @@ describe 'CLI' do
     write "x2_spec.rb", ""
     result = run_specs(:add => "--test-options ' --version'", :processes => 2)
     result.should =~ /\d+\.\d+\.\d+.*\d+\.\d+\.\d+/m # prints version twice
+  end
+  
+  it "should override path_prefix by environment variable" do
+    write "x1_spec.rb", "puts 111"
+    write "x2_spec.rb", "puts 222", "sub1"
+    result = `cd #{folder} &&  PATH_PREFIX=sub1 #{executable} -t spec  -n 1 2>&1 && echo 'i ran!'`
+    result.should_not include('111')
+    result.should include('222')    
   end
 end

@@ -30,6 +30,9 @@ BANNER
   opts.on("-h", "--help", "Show this.") { puts opts; exit }
 end.parse!
 
+# Overriding options by environment variable
+options[:path_prefix] ||= ENV['PATH_PREFIX']
+
 # get files to run from arguments
 options[:files] = ARGV if ARGV.size > 0
 
