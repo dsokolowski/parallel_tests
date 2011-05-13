@@ -35,12 +35,14 @@ end.parse!
 options[:path_prefix] ||= ENV['PATH_PREFIX']
 options[:logger] ||= ENV['LOGGER'] if ENV['LOGGER']
 options[:test_options] = ENV['TESTOPTS'] if ENV['TESTOPTS'] and (!options[:test_options] or options[:test_options] == "")
+options[:multiply] ||= ENV['MULTIPLY'].to_f if ENV['MULTIPLY']
 
 # get files to run from arguments
 options[:files] = ARGV if ARGV.size > 0
 
 num_processes = options[:count] || Parallel.processor_count
 num_processes = num_processes * (options[:multiply] || 1)
+num_processes = 1 if num_processes == 0
 
 if options[:execute]
   runs = (0...num_processes).to_a
