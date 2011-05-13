@@ -34,6 +34,7 @@ end.parse!
 # Overriding options by environment variable
 options[:path_prefix] ||= ENV['PATH_PREFIX']
 options[:logger] ||= ENV['LOGGER'] if ENV['LOGGER']
+options[:test_options] = ENV['TESTOPTS'] if ENV['TESTOPTS'] and (!options[:test_options] or options[:test_options] == "")
 
 # get files to run from arguments
 options[:files] = ARGV if ARGV.size > 0

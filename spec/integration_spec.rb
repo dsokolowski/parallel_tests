@@ -136,4 +136,10 @@ describe 'CLI' do
     file_content = File.read(logger_path)    
     file_content.should include("111")
   end
+  
+  it "should override test options using environment variable TESTOPTS" do    
+    write "x1_spec.rb", ''
+    result = `cd #{folder} && TESTOPTS="--DUMMY_OPTION" #{executable} -t spec -n 1 spec/x1_spec.rb  2>&1 && echo 'i ran!'`  
+    result.should include("invalid option: --DUMMY_OPTION")
+  end
 end
