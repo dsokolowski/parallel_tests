@@ -126,12 +126,30 @@ class ParallelTests
       tests.sort.map{|test| [test, File.stat(test).size] }
     end
   end
-
+  
+  def self.tests_with_excluded(path)    
+    result = path.match(/!\((.*)\)/)
+    if result
+      excluded_files = path.gsub(result[0],result[1])
+      files = path.gsub("#{result[0]}/","*/").gsub(result[0],"")    
+      return [].tap do |result|
+        result[0] = Dir[files+"**/*#{self.test_suffix}"]
+        result[1] = Dir[excluded_files+"**/*#{self.test_suffix}"]
+      end
+    else
+      return [].tap do |result|
+        result[0] = Dir["#{path}**/**/*#{self.test_suffix}"]        
+        result[1] = []
+      end
+    end
+  end
+    
   def self.find_tests(root)
     if root.is_a?(Array)
       root
-    else
-      Dir["#{root}**/**/*#{self.test_suffix}"]
+    else      
+      tests,excluded_tests = tests_with_excluded(root)
+      return tests - excluded_tests
     end
   end
 end

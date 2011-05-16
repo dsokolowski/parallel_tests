@@ -121,6 +121,57 @@ describe 'CLI' do
     result.should include('222')    
   end
   
+  it "should run all tests without excluded folder" do
+    write "x1_spec.rb", "puts 111"
+    write "x2_spec.rb", "puts 222"
+    write "x3_spec.rb", "puts 333", "sub1"
+    write "x4_spec.rb", "puts 444", "sub1"
+    write "x5_spec.rb", "puts 555", "sub1/sub2"
+    write "x6_spec.rb", "puts 666", "sub1/sub2"
+    write "x7_spec.rb", "puts 777", "sub3/sub2"
+    write "x8_spec.rb", "puts 888", "sub3/sub2"
+    
+    result = `cd #{folder} && #{executable} -t spec  -n 1 2>&1 && echo 'i ran!'`    
+    result.should include('111')
+    result.should include('222')
+    result.should include('333')
+    result.should include('444')
+    result.should include('555')
+    result.should include('666')
+    result.should include('777')
+    result.should include('888')
+    
+    result = `cd #{folder} &&  PATH_PREFIX="!(sub1)" #{executable} -t spec  -n 1 2>&1 && echo 'i ran!'`    
+    result.should include('111')
+    result.should include('222')
+    result.should_not include('333')
+    result.should_not include('444')
+    result.should include('555')
+    result.should include('666')
+    result.should include('777')
+    result.should include('888')
+    
+    result = `cd #{folder} &&  PATH_PREFIX="sub1/!(sub2)" #{executable} -t spec  -n 1 2>&1 && echo 'i ran!'`
+    result.should_not include('111')
+    result.should_not include('222')
+    result.should include('333')
+    result.should include('444')    
+    result.should_not include('555')
+    result.should_not include('666')
+    result.should_not include('777')
+    result.should_not include('888')
+    
+    result = `cd #{folder} &&  PATH_PREFIX="!(sub1)/sub2" #{executable} -t spec  -n 1 2>&1 && echo 'i ran!'`
+    result.should_not include('111')
+    result.should_not include('222')
+    result.should_not include('333')
+    result.should_not include('444')    
+    result.should_not include('555')
+    result.should_not include('666')
+    result.should include('777')
+    result.should include('888')
+  end
+  
   it "should log tests output in file using environment variable LOGGER" do
     write "x1_spec.rb", "puts 111"    
     logger_path = "/tmp/test.log"    
