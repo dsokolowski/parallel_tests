@@ -142,4 +142,16 @@ describe 'CLI' do
     result = `cd #{folder} && TESTOPTS="--DUMMY_OPTION" #{executable} -t spec -n 1 spec/x1_spec.rb  2>&1 && echo 'i ran!'`  
     result.should include("invalid option: --DUMMY_OPTION")
   end
+  
+  it "should override test options using environment variable TESTOPTS" do    
+    write "x1_spec.rb", ''
+    write "x2_spec.rb", ''
+    write "x3_spec.rb", ''
+    write "x4_spec.rb", ''
+    result = `cd #{folder} && MULTIPLY="0.75" #{executable} -t spec -n 4 spec/x1_spec.rb spec/x2_spec.rb spec/x3_spec.rb spec/x4_spec.rb  2>&1 && echo 'i ran!'`  
+    result.should include("3 processes for 4 specs")
+    
+    result = `cd #{folder} && MULTIPLY="0.5" #{executable} -t spec -n 4 spec/x1_spec.rb spec/x2_spec.rb spec/x3_spec.rb spec/x4_spec.rb  2>&1 && echo 'i ran!'`  
+    result.should include("2 processes for 4 specs")
+  end
 end
