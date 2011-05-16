@@ -120,7 +120,8 @@ class ParallelTests
       times = Hash.new(1)
       lines.each do |line|
         test, time = line.split(":")
-        times[test] = time.to_f
+        key = [options[:root_path],test].compact.join('/')
+        times[key] = time.to_f
       end
       tests.sort.map{|test| [test, times[test]] }
     else # use file sizes
