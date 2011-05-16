@@ -111,7 +111,8 @@ class ParallelTests
 
   def self.tests_with_runtime(root,options={})
     tests = find_tests(root)
-    lines = File.read("#{options[:root_path] || root}/../tmp/parallel_profile.log").split("\n") rescue []
+    root_path = ( options[:root_path] || "#{root}/../" )
+    lines = File.read("#{root_path}/tmp/parallel_profile.log").split("\n") rescue []
 
     # use recorded test runtime if we got enough data
     if lines.size * 1.5 > tests.size
