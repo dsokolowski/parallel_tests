@@ -28,9 +28,9 @@ class ParallelTests
     end
   end
 
-  def self.run_tests(test_files, process_number, options)
-    require_list = test_files.map { |filename| "\"#{filename}\"" }.join(",")
-    cmd = "ruby -Itest #{options[:test_options]} -e '[#{require_list}].each {|f| require f }'"
+  def self.run_tests(test_files, process_number, options)    
+    require_list = test_files.map{|f| "\"#{f}\"" }.join(' ')
+    cmd = "ruby -Itest #{options[:test_options]} -e 'ARGV.each{|f| load f unless f.to_s.match(/^-/) }' #{require_list} #{options[:test_args]}"
     execute_command(cmd, process_number, options)
   end
 

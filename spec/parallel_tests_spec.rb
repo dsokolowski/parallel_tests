@@ -40,6 +40,11 @@ describe ParallelTests do
       ParallelTests.should_receive(:open).with{|x,y| x=~ %r{ruby -Itest -v}}.and_return mocked_process
       ParallelTests.run_tests(['xxx'],1,:test_options => '-v')
     end
+    
+    it "uses test arguments" do
+      ParallelTests.should_receive(:open).with{|x,y| x=~ %r{--seed=1234$}}.and_return mocked_process
+      ParallelTests.run_tests(['xxx'],1,:test_args => '--seed=1234')
+    end
 
     it "returns the output" do
       io = open('spec/spec_helper.rb')
