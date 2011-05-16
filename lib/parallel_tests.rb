@@ -24,7 +24,7 @@ class ParallelTests
     if options[:no_sort] == true
       Grouper.in_groups(find_tests(root), num_groups)
     else
-      Grouper.in_even_groups_by_size(tests_with_runtime(root), num_groups)
+      Grouper.in_even_groups_by_size(tests_with_runtime(root,options), num_groups)
     end
   end
 
@@ -109,9 +109,9 @@ class ParallelTests
     "_test.rb"
   end
 
-  def self.tests_with_runtime(root)
+  def self.tests_with_runtime(root,options={})
     tests = find_tests(root)
-    lines = File.read("#{root}/../tmp/parallel_profile.log").split("\n") rescue []
+    lines = File.read("#{options[:root_path] || root}/../tmp/parallel_profile.log").split("\n") rescue []
 
     # use recorded test runtime if we got enough data
     if lines.size * 1.5 > tests.size
